@@ -1,0 +1,576 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "All User Commit Report API Schema",
+    "description": "API specification for the All User Commit analysis report structure",
+    "version": "1.0.0",
+    "contact": {
+      "name": "All User Commit Tool",
+      "url": "https://github.com/example/all_user_commit"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "components": {
+    "schemas": {
+      "CommitParent": {
+        "type": "object",
+        "description": "Parent commit information",
+        "properties": {
+          "sha": {
+            "type": "string",
+            "description": "SHA hash of the parent commit",
+            "example": "def456"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "API URL of the parent commit",
+            "example": "https://api.github.com/repos/owner/repo/commits/def456"
+          },
+          "html_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Web URL of the parent commit",
+            "example": "https://github.com/owner/repo/commit/def456"
+          }
+        },
+        "required": ["sha", "url", "html_url"]
+      },
+      "CommitStats": {
+        "type": "object",
+        "description": "Commit statistics showing code changes",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "description": "Total number of changes (additions + deletions)",
+            "example": 40
+          },
+          "additions": {
+            "type": "integer",
+            "description": "Number of lines added",
+            "example": 20
+          },
+          "deletions": {
+            "type": "integer",
+            "description": "Number of lines deleted",
+            "example": 20
+          }
+        },
+        "required": ["total", "additions", "deletions"]
+      },
+      "CommitFile": {
+        "type": "object",
+        "description": "File changes in a commit",
+        "properties": {
+          "sha": {
+            "type": "string",
+            "description": "SHA hash of the file",
+            "example": "abc123def456"
+          },
+          "filename": {
+            "type": "string",
+            "description": "Name of the file",
+            "example": "src/main.js"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["added", "modified", "removed", "renamed"],
+            "description": "Status of the file change",
+            "example": "modified"
+          },
+          "additions": {
+            "type": "integer",
+            "description": "Number of lines added to this file",
+            "example": 1
+          },
+          "deletions": {
+            "type": "integer",
+            "description": "Number of lines deleted from this file",
+            "example": 1
+          },
+          "changes": {
+            "type": "integer",
+            "description": "Total number of changes to this file",
+            "example": 2
+          },
+          "blob_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the blob of this file"
+          },
+          "raw_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the raw content of this file"
+          },
+          "contents_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the contents API for this file"
+          },
+          "patch": {
+            "type": "string",
+            "description": "Patch content for this file"
+          }
+        },
+        "required": ["filename", "status", "additions", "deletions", "changes"]
+      },
+      "Commit": {
+        "type": "object",
+        "description": "Individual commit information",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "UserId or Email",
+            "example": "abc123"
+          },
+          "sha": {
+            "type": "string",
+            "description": "SHA hash of the commit",
+            "example": "abc123"
+          },
+          "message": {
+            "type": "string",
+            "description": "Commit message",
+            "example": "Fix bug in user authentication"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date when the commit was created",
+            "example": "2024-01-15T10:30:00Z"
+          },
+          "repository": {
+            "type": "string",
+            "description": "Repository name in format 'owner/repo'",
+            "example": "owner/repo"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["direct", "pull_request"],
+            "description": "Type of commit: direct push or part of pull request",
+            "example": "direct"
+          },
+          "pullRequest": {
+            "type": ["integer", "null"],
+            "description": "Pull request number if this commit is part of a PR",
+            "example": null
+          },
+          "author": {
+            "type": "string",
+            "description": "Author name of the commit",
+            "example": "John Doe"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the commit on GitHub",
+            "example": "https://github.com/owner/repo/commit/abc123"
+          },
+          "parents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommitParent"
+            },
+            "description": "Parent commits"
+          },
+          "stats": {
+            "$ref": "#/components/schemas/CommitStats",
+            "description": "Commit statistics"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommitFile"
+            },
+            "description": "Files changed in this commit"
+          }
+        },
+        "required": [
+          "userId",
+          "sha",
+          "message",
+          "date",
+          "repository",
+          "type",
+          "author",
+          "url"
+        ]
+      },
+      "DateRange": {
+        "type": "object",
+        "description": "Date range of commits found",
+        "properties": {
+          "earliest": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Earliest commit date in the dataset",
+            "example": "2024-01-01T00:00:00Z"
+          },
+          "latest": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Latest commit date in the dataset",
+            "example": "2024-12-31T23:59:59Z"
+          }
+        }
+      },
+      "ReportInputs": {
+        "type": "object",
+        "description": "Input parameters used to generate the report",
+        "properties": {
+          "searchUser": {
+            "type": "string",
+            "description": "GitHub username that was analyzed",
+            "example": "johndoe"
+          },
+          "org": {
+            "type": ["string", "null"],
+            "description": "Organization filter applied",
+            "example": "mycompany"
+          },
+          "repo": {
+            "type": ["string", "null"],
+            "description": "Repository filter applied",
+            "example": "frontend,backend"
+          },
+          "start": {
+            "type": ["string", "null"],
+            "format": "date",
+            "description": "Start date of analysis range",
+            "example": "2024-01-01"
+          },
+          "end": {
+            "type": ["string", "null"],
+            "format": "date",
+            "description": "End date of analysis range",
+            "example": "2024-12-31"
+          },
+          "ignoreDateRange": {
+            "type": "boolean",
+            "description": "Whether date range was ignored",
+            "example": false
+          },
+          "totalRecords": {
+            "type": "integer",
+            "description": "Maximum number of records fetched",
+            "example": 1000
+          },
+          "includeDetails": {
+            "type": "boolean",
+            "description": "Whether detailed commit information was included",
+            "example": true
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When this report was generated",
+            "example": "2024-01-15T10:30:00Z"
+          },
+          "cancelled": {
+            "type": "boolean",
+            "description": "Whether the analysis was cancelled before completion",
+            "example": false
+          }
+        },
+        "required": [
+          "searchUser",
+          "ignoreDateRange",
+          "totalRecords",
+          "includeDetails",
+          "generatedAt"
+        ]
+      },
+      "ReportSummary": {
+        "type": "object",
+        "description": "High-level summary of analysis findings",
+        "properties": {
+          "totalCommits": {
+            "type": "integer",
+            "description": "Total number of commits found",
+            "example": 150
+          },
+          "directCommits": {
+            "type": "integer",
+            "description": "Number of direct commits (not part of PRs)",
+            "example": 120
+          },
+          "pullRequestCommits": {
+            "type": "integer",
+            "description": "Number of commits that are part of pull requests",
+            "example": 30
+          },
+          "uniqueRepositories": {
+            "type": "integer",
+            "description": "Number of unique repositories with commits",
+            "example": 15
+          },
+          "uniquePullRequests": {
+            "type": "integer",
+            "description": "Number of unique pull requests",
+            "example": 25
+          },
+          "totalAdditions": {
+            "type": "integer",
+            "description": "Total lines added across all commits",
+            "example": 5000
+          },
+          "totalDeletions": {
+            "type": "integer",
+            "description": "Total lines deleted across all commits",
+            "example": 2000
+          },
+          "totalFilesChanged": {
+            "type": "integer",
+            "description": "Total number of files changed across all commits",
+            "example": 300
+          },
+          "totalRecordsFetched": {
+            "type": "integer",
+            "description": "Total number of records fetched from API",
+            "example": 1000
+          },
+          "dateRange": {
+            "$ref": "#/components/schemas/DateRange",
+            "description": "Actual date range of commits found"
+          }
+        },
+        "required": [
+          "totalCommits",
+          "directCommits",
+          "pullRequestCommits",
+          "uniqueRepositories",
+          "uniquePullRequests",
+          "totalAdditions",
+          "totalDeletions",
+          "totalFilesChanged",
+          "dateRange"
+        ]
+      },
+      "RepositoryGroup": {
+        "type": "object",
+        "description": "Commits grouped by repository",
+        "properties": {
+          "direct": {
+            "type": "integer",
+            "description": "Number of direct commits in this repository",
+            "example": 10
+          },
+          "pull_request": {
+            "type": "integer",
+            "description": "Number of pull request commits in this repository",
+            "example": 5
+          },
+          "userId": {
+            "type": "string",
+            "description": "UserId or Email",
+            "example": "abc123"
+          },
+          "commits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Commit"
+            },
+            "description": "All commits in this repository"
+          },
+          "totalAdditions": {
+            "type": "integer",
+            "description": "Total lines added in this repository",
+            "example": 500
+          },
+          "totalDeletions": {
+            "type": "integer",
+            "description": "Total lines deleted in this repository",
+            "example": 200
+          },
+          "totalFiles": {
+            "type": "integer",
+            "description": "Total files changed in this repository",
+            "example": 50
+          }
+        },
+        "required": [
+          "userId",
+          "direct",
+          "pull_request",
+          "commits",
+          "totalAdditions",
+          "totalDeletions",
+          "totalFiles"
+        ]
+      },
+      "PullRequestGroup": {
+        "type": "object",
+        "description": "Commits grouped by pull request",
+        "properties": {
+          "repository": {
+            "type": "string",
+            "description": "Repository name in format 'owner/repo'",
+            "example": "owner/repo"
+          },
+          "pullRequest": {
+            "type": "integer",
+            "description": "Pull request number",
+            "example": 123
+          },
+          "userId": {
+            "type": "string",
+            "description": "UserId or Email",
+            "example": "abc123"
+          },
+          "commits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Commit"
+            },
+            "description": "All commits in this pull request"
+          },
+          "totalAdditions": {
+            "type": "integer",
+            "description": "Total lines added in this pull request",
+            "example": 100
+          },
+          "totalDeletions": {
+            "type": "integer",
+            "description": "Total lines deleted in this pull request",
+            "example": 50
+          },
+          "totalFiles": {
+            "type": "integer",
+            "description": "Total files changed in this pull request",
+            "example": 10
+          }
+        },
+        "required": [
+          "userId",
+          "repository",
+          "pullRequest",
+          "commits",
+          "totalAdditions",
+          "totalDeletions",
+          "totalFiles"
+        ]
+      },
+      "AllUserCommitReport": {
+        "type": "object",
+        "description": "Complete GitHub user commit analysis report",
+        "properties": {
+          "inputs": {
+            "$ref": "#/components/schemas/ReportInputs",
+            "description": "Input parameters used to generate this report"
+          },
+          "metaTags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "User-defined metadata tags",
+            "example": {
+              "project": "web-app",
+              "version": "1.0.0"
+            }
+          },
+          "summary": {
+            "$ref": "#/components/schemas/ReportSummary",
+            "description": "High-level summary of findings"
+          },
+          "commits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Commit"
+            },
+            "description": "All commits found in the analysis"
+          },
+          "groupedByRepository": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/RepositoryGroup"
+            },
+            "description": "Commits grouped by repository",
+            "example": {
+              "owner/repo": {
+                "direct": 10,
+                "pull_request": 5,
+                "commits": [],
+                "totalAdditions": 500,
+                "totalDeletions": 200,
+                "totalFiles": 50
+              }
+            }
+          },
+          "groupedByPullRequest": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/PullRequestGroup"
+            },
+            "description": "Commits grouped by pull request (format: 'owner/repo#number')",
+            "example": {
+              "owner/repo#123": {
+                "repository": "owner/repo",
+                "pullRequest": 123,
+                "commits": [],
+                "totalAdditions": 100,
+                "totalDeletions": 50,
+                "totalFiles": 10
+              }
+            }
+          },
+          "criteria": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Criteria used for filtering and selecting commits",
+            "example": [
+              "Commits authored by the specified user",
+              "Commits within the specified date range",
+              "Both direct commits and pull request commits included"
+            ]
+          },
+          "formula": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Formulas and calculations used in the analysis",
+            "example": [
+              "Direct commits = commits found in user's repositories not associated with any pull request",
+              "Total commits = direct commits + pull request commits (deduplicated by SHA)"
+            ]
+          }
+        },
+        "required": [
+          "inputs",
+          "summary",
+          "commits",
+          "groupedByRepository",
+          "groupedByPullRequest",
+          "criteria",
+          "formula"
+        ]
+      }
+    }
+  },
+  "paths": {},
+  "tags": [
+    {
+      "name": "GitHub Analysis",
+      "description": "GitHub commit analysis and reporting functionality"
+    },
+    {
+      "name": "Commit Data",
+      "description": "Individual commit information and statistics"
+    },
+    {
+      "name": "Repository Analytics",
+      "description": "Repository-level commit analytics and grouping"
+    },
+    {
+      "name": "Pull Request Analytics",
+      "description": "Pull request-level commit analytics and grouping"
+    }
+  ]
+}

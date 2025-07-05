@@ -1,0 +1,591 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Developer Insights Report API",
+    "description": "API specification for Developer Insights report data structure",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Developer Insights",
+      "url": "https://github.com/developer-insights/developer-insights"
+    }
+  },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "DeveloperInsightsReport": {
+        "type": "object",
+        "required": ["metadata", "summary", "analytics"],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/ReportMetadata"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/ReportSummary"
+          },
+          "analytics": {
+            "$ref": "#/components/schemas/ReportAnalytics"
+          },
+          "rawData": {
+            "$ref": "#/components/schemas/RawData"
+          }
+        }
+      },
+      "ReportMetadata": {
+        "type": "object",
+        "required": [
+          "reportVersion",
+          "searchUser",
+          "repositoriesAnalyzed",
+          "generatedAt",
+          "enabledModules"
+        ],
+        "properties": {
+          "reportVersion": {
+            "type": "string",
+            "example": "1.0"
+          },
+          "searchUser": {
+            "type": "string",
+            "example": "octocat"
+          },
+          "dateRange": {
+            "$ref": "#/components/schemas/DateRange"
+          },
+          "repositoriesAnalyzed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["octocat/Hello-World", "octocat/Spoon-Knife"]
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-31T12:00:00Z"
+          },
+          "enabledModules": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "prThroughput",
+              "codeChurn",
+              "workPatterns",
+              "prCycleTime"
+            ]
+          },
+          "metaTags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "example": {
+              "project": "web-app",
+              "team": "backend",
+              "sprint": "2024-Q1"
+            }
+          },
+          "inputs": {
+            "$ref": "#/components/schemas/InputParameters"
+          },
+          "criteria": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Pull requests filtered by author:octocat and user:octocat",
+              "Commits filtered by author:octocat",
+              "Date range: 2024-01-01 to 2024-01-31"
+            ]
+          },
+          "formula": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Merge Rate = (Merged PRs / Total PRs) * 100",
+              "Average Time to Merge = Sum(Merge Time) / Count(Merged PRs)",
+              "Net Code Change = Total Additions - Total Deletions"
+            ]
+          }
+        }
+      },
+      "DateRange": {
+        "type": "object",
+        "required": ["start", "end"],
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date",
+            "example": "2024-01-01"
+          },
+          "end": {
+            "type": "string",
+            "format": "date",
+            "example": "2024-01-31"
+          }
+        }
+      },
+      "InputParameters": {
+        "type": "object",
+        "properties": {
+          "searchUser": {
+            "type": "string"
+          },
+          "org": {
+            "type": "string"
+          },
+          "repo": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string",
+            "enum": ["json", "csv", "html", "database"]
+          },
+          "outputDir": {
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "ignoreDateRange": {
+            "type": "boolean"
+          },
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          },
+          "totalRecords": {
+            "type": "integer"
+          },
+          "delay": {
+            "type": "integer"
+          },
+          "partitionStrategy": {
+            "type": "string",
+            "enum": ["time", "size", "auto"]
+          },
+          "fetchStrategy": {
+            "type": "string",
+            "enum": ["commits-by-date", "code-by-size", "repos-by-date"]
+          },
+          "modules": {
+            "type": "string"
+          }
+        }
+      },
+      "ReportSummary": {
+        "type": "object",
+        "required": ["totalContributions", "totalCommits", "totalPRsCreated"],
+        "properties": {
+          "totalContributions": {
+            "type": "integer",
+            "example": 1250
+          },
+          "totalCommits": {
+            "type": "integer",
+            "example": 150
+          },
+          "totalPRsCreated": {
+            "type": "integer",
+            "example": 25
+          },
+          "totalReviewsSubmitted": {
+            "type": "integer",
+            "example": 45
+          },
+          "totalComments": {
+            "type": "integer",
+            "example": 120
+          },
+          "linesAdded": {
+            "type": "integer",
+            "example": 5000
+          },
+          "linesDeleted": {
+            "type": "integer",
+            "example": 2500
+          },
+          "primaryLanguages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["JavaScript", "TypeScript", "Python"]
+          }
+        }
+      },
+      "ReportAnalytics": {
+        "type": "object",
+        "properties": {
+          "prThroughput": {
+            "$ref": "#/components/schemas/PRThroughputAnalysis"
+          },
+          "codeChurn": {
+            "$ref": "#/components/schemas/CodeChurnAnalysis"
+          },
+          "workPatterns": {
+            "$ref": "#/components/schemas/WorkPatternsAnalysis"
+          },
+          "prCycleTime": {
+            "$ref": "#/components/schemas/PRCycleTimeAnalysis"
+          }
+        }
+      },
+      "PRThroughputAnalysis": {
+        "type": "object",
+        "required": [
+          "totalPRs",
+          "statusBreakdown",
+          "mergeRate",
+          "avgTimeToMerge"
+        ],
+        "properties": {
+          "totalPRs": {
+            "type": "integer",
+            "example": 25
+          },
+          "statusBreakdown": {
+            "type": "object",
+            "required": ["merged", "closed", "open"],
+            "properties": {
+              "merged": {
+                "type": "integer",
+                "example": 20
+              },
+              "closed": {
+                "type": "integer",
+                "example": 3
+              },
+              "open": {
+                "type": "integer",
+                "example": 2
+              }
+            }
+          },
+          "mergeRate": {
+            "type": "number",
+            "format": "float",
+            "example": 80.0
+          },
+          "avgTimeToMerge": {
+            "type": "string",
+            "example": "2.5 days"
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PullRequestDetail"
+            }
+          }
+        }
+      },
+      "CodeChurnAnalysis": {
+        "type": "object",
+        "required": [
+          "totalCommits",
+          "totalAdditions",
+          "totalDeletions",
+          "netChange"
+        ],
+        "properties": {
+          "totalCommits": {
+            "type": "integer",
+            "example": 150
+          },
+          "totalAdditions": {
+            "type": "integer",
+            "example": 5000
+          },
+          "totalDeletions": {
+            "type": "integer",
+            "example": 2500
+          },
+          "netChange": {
+            "type": "integer",
+            "example": 2500
+          },
+          "commitSizeDistribution": {
+            "type": "object",
+            "properties": {
+              "small": {
+                "type": "integer",
+                "example": 80
+              },
+              "medium": {
+                "type": "integer",
+                "example": 60
+              },
+              "large": {
+                "type": "integer",
+                "example": 10
+              }
+            }
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommitDetail"
+            }
+          }
+        }
+      },
+      "WorkPatternsAnalysis": {
+        "type": "object",
+        "required": [
+          "mostActiveDay",
+          "afterHoursPercentage",
+          "totalActivities"
+        ],
+        "properties": {
+          "mostActiveDay": {
+            "type": "string",
+            "example": "Tuesday"
+          },
+          "afterHoursPercentage": {
+            "type": "number",
+            "format": "float",
+            "example": 25.5
+          },
+          "commitPunchcard": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer"
+              }
+            }
+          },
+          "dayDistribution": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "example": {
+              "Monday": 20,
+              "Tuesday": 35,
+              "Wednesday": 30
+            }
+          },
+          "hourDistribution": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "example": {
+              "9": 15,
+              "10": 25,
+              "14": 20
+            }
+          },
+          "totalActivities": {
+            "type": "integer",
+            "example": 175
+          },
+          "afterHoursCount": {
+            "type": "integer",
+            "example": 45
+          }
+        }
+      },
+      "PRCycleTimeAnalysis": {
+        "type": "object",
+        "required": ["avgCycleTime", "totalPRs", "mergedPRs"],
+        "properties": {
+          "avgCycleTime": {
+            "type": "number",
+            "format": "float",
+            "example": 2.5
+          },
+          "totalPRs": {
+            "type": "integer",
+            "example": 25
+          },
+          "mergedPRs": {
+            "type": "integer",
+            "example": 20
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PRCycleTimeDetail"
+            }
+          }
+        }
+      },
+      "PullRequestDetail": {
+        "type": "object",
+        "required": ["number", "title", "repository", "state"],
+        "properties": {
+          "number": {
+            "type": "integer",
+            "example": 123
+          },
+          "title": {
+            "type": "string",
+            "example": "Add new feature"
+          },
+          "repository": {
+            "type": "string",
+            "example": "octocat/Hello-World"
+          },
+          "state": {
+            "type": "string",
+            "enum": ["open", "closed"],
+            "example": "closed"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "merged_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "closed_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "additions": {
+            "type": "integer",
+            "example": 150
+          },
+          "deletions": {
+            "type": "integer",
+            "example": 75
+          },
+          "changed_files": {
+            "type": "integer",
+            "example": 5
+          }
+        }
+      },
+      "CommitDetail": {
+        "type": "object",
+        "required": ["sha", "message", "author", "repository"],
+        "properties": {
+          "sha": {
+            "type": "string",
+            "example": "abc123def456"
+          },
+          "message": {
+            "type": "string",
+            "example": "Fix bug in user authentication"
+          },
+          "author": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "example": "Octocat"
+              },
+              "email": {
+                "type": "string",
+                "example": "octocat@github.com"
+              },
+              "date": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "repository": {
+            "type": "string",
+            "example": "octocat/Hello-World"
+          },
+          "stats": {
+            "type": "object",
+            "properties": {
+              "additions": {
+                "type": "integer",
+                "example": 25
+              },
+              "deletions": {
+                "type": "integer",
+                "example": 10
+              },
+              "total": {
+                "type": "integer",
+                "example": 35
+              }
+            }
+          }
+        }
+      },
+      "PRCycleTimeDetail": {
+        "type": "object",
+        "required": ["number", "title", "repository", "status"],
+        "properties": {
+          "number": {
+            "type": "integer",
+            "example": 123
+          },
+          "title": {
+            "type": "string",
+            "example": "Add new feature"
+          },
+          "repository": {
+            "type": "string",
+            "example": "octocat/Hello-World"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "merged_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "closed_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "cycleTime": {
+            "type": "number",
+            "format": "float",
+            "nullable": true,
+            "example": 2.5
+          },
+          "status": {
+            "type": "string",
+            "enum": ["merged", "closed", "open"],
+            "example": "merged"
+          }
+        }
+      },
+      "RawData": {
+        "type": "object",
+        "description": "Raw data is only included when debug mode is enabled",
+        "properties": {
+          "pullRequests": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "commits": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "repositories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}
